@@ -19,6 +19,7 @@ ENV OPENAI_API_KEY=""
 ENV GOOGLE_API_KEY=""
 ENV CODE=""
 ENV NEXT_PUBLIC_ENABLE_NODEJS_PLUGIN=1
+ENV LANGCHAIN_CALLBACKS_BACKGROUND=true
 
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
@@ -35,6 +36,7 @@ ENV PROXY_URL=""
 ENV OPENAI_API_KEY=""
 ENV GOOGLE_API_KEY=""
 ENV CODE=""
+ENV LANGCHAIN_CALLBACKS_BACKGROUND=true
 
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
@@ -44,7 +46,7 @@ COPY --from=builder /app/.next/server ./.next/server
 EXPOSE 3000
 
 CMD if [ -n "$PROXY_URL" ]; then \
-    unset HOSTNAME; \
+    export HOSTNAME="0.0.0.0"; \
     protocol=$(echo $PROXY_URL | cut -d: -f1); \
     host=$(echo $PROXY_URL | cut -d/ -f3 | cut -d: -f1); \
     port=$(echo $PROXY_URL | cut -d: -f3); \
@@ -59,7 +61,7 @@ CMD if [ -n "$PROXY_URL" ]; then \
     echo "[ProxyList]" >> $conf; \
     echo "$protocol $host $port" >> $conf; \
     cat /etc/proxychains.conf; \
-    proxychains -f $conf node server.js --host 0.0.0.0; \
+    proxychains -f $conf node server.js; \
     else \
     node server.js; \
     fi

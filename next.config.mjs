@@ -6,6 +6,8 @@ console.log("[Next] build mode", mode);
 const disableChunk = !!process.env.DISABLE_CHUNK || mode === "export";
 console.log("[Next] build with chunk: ", !disableChunk);
 
+process.env.LANGCHAIN_CALLBACKS_BACKGROUND = true;
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   webpack(config) {
@@ -68,6 +70,11 @@ if (mode !== "export") {
       {
         source: "/api/proxy/v1/:path*",
         destination: "https://api.openai.com/v1/:path*",
+      },
+      {
+        // https://{resource_name}.openai.azure.com/openai/deployments/{deploy_name}/chat/completions
+        source: "/api/proxy/azure/:resource_name/deployments/:deploy_name/:path*",
+        destination: "https://:resource_name.openai.azure.com/openai/deployments/:deploy_name/:path*",
       },
       {
         source: "/api/proxy/google/:path*",
